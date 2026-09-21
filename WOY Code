@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheel of the Year Interactive Cheat Sheet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            400: '#f6d365',
+                            500: '#e5ad35',
+                            600: '#c28b1e',
+                        },
+                        mystic: {
+                            900: '#0c1017',
+                            800: '#141b26',
+                            700: '#1e2838',
+                            600: '#2c394e',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Cinzel', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0c1017;
+            color: #e2e8f0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+        .heading-serif {
+            font-family: 'Cinzel', serif;
+        }
+        /* Glassmorphic card styling */
+        .glass-panel {
+            background: rgba(20, 27, 38, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(229, 173, 53, 0.15);
+        }
+        .glass-card {
+            background: rgba(30, 40, 56, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        /* Smooth sector hover and transition effects */
+        .wheel-sector {
+            transition: transform 0.25s ease, filter 0.25s ease, opacity 0.3s ease;
+            cursor: pointer;
+            transform-origin: 200px 200px;
+        }
+        .wheel-sector:hover {
+            filter: brightness(1.25) drop-shadow(0 0 10px rgba(229, 173, 53, 0.5));
+        }
+        .wheel-sector.active {
+            filter: brightness(1.35) drop-shadow(0 0 15px rgba(246, 211, 101, 0.8));
+            stroke: #f6d365;
+            stroke-width: 2.5px;
+        }
+        .wheel-sector.dimmed {
+            opacity: 0.3;
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0c1017;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2c394e;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #e5ad35;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-3 sm:p-6 md:p-8 flex flex-col items-center justify-start">
+
+    <header class="w-full max-w-6xl text-center mb-6">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-gold-500/10 text-gold-400 border border-gold-500/20 mb-2">
+            <span>✨ Interactive Wiccan & Pagan Wheel of the Year</span>
+        </div>
+        <h1 class="heading-serif text-3xl sm:text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-gold-400 to-amber-500 tracking-wide">
+            Sabbat Cheat Sheet
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-2 max-w-2xl mx-auto">
+            Explore the 8 seasonal festivals, phonetic pronunciations, meanings, traditional practices, and quick low-energy celebration ideas.
+        </p>
+    </header>
+
+    <section class="w-full max-w-6xl glass-panel rounded-2xl p-4 mb-6 shadow-xl flex flex-col md:flex-row gap-4 items-center justify-between">
+        <!-- Filter Tabs -->
+        <div class="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 w-full md:w-auto">
+            <button onclick="setCategoryFilter('all')" id="btn-filter-all" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all bg-gold-500 text-mystic-900 font-semibold shadow-md">
+                All (8)
+            </button>
+            <button onclick="setCategoryFilter('solar')" id="btn-filter-solar" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all bg-mystic-700 text-slate-300 hover:text-white hover:bg-mystic-600">
+                ☀️ Solar (Lesser)
+            </button>
+            <button onclick="setCategoryFilter('cross-quarter')" id="btn-filter-cross-quarter" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all bg-mystic-700 text-slate-300 hover:text-white hover:bg-mystic-600">
+                🔥 Cross-Quarter (Greater)
+            </button>
+        </div>
+
+        <!-- Right Side: Search and Hemisphere Toggle -->
+        <div class="flex flex-wrap items-center justify-center sm:justify-end gap-3 w-full md:w-auto">
+            <!-- Search / Jump -->
+            <div class="relative w-full sm:w-48">
+                <input type="text" id="sabbat-search" oninput="handleSearch(this.value)" placeholder="Search Sabbat..." 
+                    class="w-full bg-mystic-900/80 text-xs sm:text-sm text-slate-200 placeholder-slate-500 px-3 py-1.5 pl-8 rounded-xl border border-slate-700 focus:outline-none focus:border-gold-500 transition-colors">
+                <svg class="w-4 h-4 text-slate-500 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+
+            <!-- Hemisphere Switch -->
+            <div class="flex items-center bg-mystic-900/80 p-1 rounded-xl border border-slate-700">
+                <button onclick="setHemisphere('northern')" id="btn-hemi-north" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-gold-500/20 text-gold-400 border border-gold-500/30">
+                    N. Hemisphere
+                </button>
+                <button onclick="setHemisphere('southern')" id="btn-hemi-south" class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200">
+                    S. Hemisphere
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Interactive SVG Wheel Column -->
+        <div class="lg:col-span-5 glass-panel rounded-3xl p-5 flex flex-col items-center justify-center shadow-2xl relative">
+            <div class="text-xs font-semibold tracking-wider uppercase text-gold-400/80 mb-2 heading-serif">
+                Select a Sabbat on the Wheel
+            </div>
+            
+            <div class="relative w-full max-w-[360px] aspect-square flex items-center justify-center">
+                <svg id="wheel-svg" viewBox="0 0 400 400" class="w-full h-full drop-shadow-xl select-none">
+                    <!-- Dynamic Wheel Contents Rendered Via JS -->
+                </svg>
+
+                <!-- Center Knob / Current Marker -->
+                <div class="absolute inset-0 m-auto w-24 h-24 rounded-full bg-mystic-900 border-2 border-gold-500/40 flex flex-col items-center justify-center text-center p-1 pointer-events-none shadow-2xl">
+                    <span id="center-symbol" class="text-xl">✨</span>
+                    <span id="center-title" class="text-[10px] font-bold heading-serif text-gold-400 truncate max-w-[80px]">Wheel</span>
+                    <span id="center-date" class="text-[8px] text-slate-400">Click Any</span>
+                </div>
+            </div>
+
+            <!-- Legend below wheel -->
+            <div class="flex items-center gap-4 mt-4 text-xs text-slate-400">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
+                    <span>Solar (Lesser)</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
+                    <span>Cross-Quarter (Greater)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Card Column -->
+        <div class="lg:col-span-7 glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl min-h-[500px] flex flex-col justify-between">
+            <div id="detail-content">
+                <!-- Header Info -->
+                <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-4 mb-5">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span id="card-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-400/10 text-amber-300 border border-amber-400/20">
+                                Solar Sabbat
+                            </span>
+                            <span id="card-season" class="text-xs text-slate-400 font-medium">Winter Solstice</span>
+                        </div>
+                        <h2 id="card-name" class="heading-serif text-2xl sm:text-3xl font-bold text-slate-100 flex items-center gap-3">
+                            Yule
+                        </h2>
+                        <!-- Pronunciation with Speech Synthesizer -->
+                        <div class="flex items-center gap-2 mt-1">
+                            <span id="card-phonetic" class="text-xs sm:text-sm font-mono text-gold-400/90 italic">
+                                /(YOOL)/
+                            </span>
+                            <button onclick="speakPronunciation()" title="Listen to pronunciation" class="p-1 rounded-md bg-mystic-700 hover:bg-gold-500 hover:text-mystic-900 text-gold-400 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Date Banner -->
+                    <div class="text-right bg-mystic-900/90 px-3.5 py-2 rounded-2xl border border-slate-800">
+                        <div class="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">Observed Around</div>
+                        <div id="card-date" class="text-xs sm:text-sm font-bold text-gold-400">Dec 20 – Dec 23</div>
+                    </div>
+                </div>
+
+                <!-- Meaning & Purpose -->
+                <div class="mb-5">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
+                        <span>🌌</span> Meaning & Core Purpose
+                    </h3>
+                    <p id="card-meaning" class="text-xs sm:text-sm leading-relaxed text-slate-300 glass-card p-3.5 rounded-xl">
+                        Rebirth of the Sun, light returning out of maximum darkness, hope, inner reflection, and honoring the quiet stillness before growth.
+                    </p>
+                </div>
+
+                <!-- Celebration Grid (Popular vs Low Energy) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                    <!-- Popular / Traditional -->
+                    <div class="glass-card p-4 rounded-2xl border-l-4 border-l-gold-500">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-gold-400 mb-2 flex items-center gap-1.5">
+                            <span>🔥</span> Popular / Traditional
+                        </h4>
+                        <ul id="card-popular" class="text-xs text-slate-300 space-y-1.5 list-disc list-inside">
+                            <!-- Populated via JS -->
+                        </ul>
+                    </div>
+
+                    <!-- Easiest / Low Energy -->
+                    <div class="glass-card p-4 rounded-2xl border-l-4 border-l-emerald-400">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2 flex items-center gap-1.5">
+                            <span>🌱</span> Easiest (Low-Energy)
+                        </h4>
+                        <ul id="card-easy" class="text-xs text-slate-300 space-y-1.5 list-disc list-inside">
+                            <!-- Populated via JS -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Correspondences (Symbols, Herbs, Colors) -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-mystic-900/60 p-2.5 rounded-xl border border-slate-800/80">
+                        <span class="text-[10px] uppercase font-bold text-slate-500 block mb-1">🎨 Colors</span>
+                        <div id="card-colors" class="flex flex-wrap gap-1"></div>
+                    </div>
+                    <div class="bg-mystic-900/60 p-2.5 rounded-xl border border-slate-800/80">
+                        <span class="text-[10px] uppercase font-bold text-slate-500 block mb-1">🌿 Herbs & Plants</span>
+                        <div id="card-herbs" class="text-xs text-slate-300 font-medium truncate"></div>
+                    </div>
+                    <div class="bg-mystic-900/60 p-2.5 rounded-xl border border-slate-800/80">
+                        <span class="text-[10px] uppercase font-bold text-slate-500 block mb-1">💎 Crystals / Symbols</span>
+                        <div id="card-symbols" class="text-xs text-slate-300 font-medium truncate"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Quick Selector Pills -->
+            <div class="mt-6 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <span class="text-slate-500 font-medium">Quick Select:</span>
+                <div id="quick-pills" class="flex flex-wrap gap-1.5">
+                    <!-- Quick Pills populated via JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Data structure containing information for all 8 Sabbats
+        const sabbats = [
+            {
+                id: 'yule',
+                name: 'Yule',
+                phonetic: 'YOOL',
+                category: 'solar',
+                categoryLabel: 'Solar (Lesser) Sabbat',
+                season: 'Winter Solstice',
+                symbol: '❄️',
+                angles: { start: 337.5, end: 22.5 },
+                color: '#3b82f6', // Winter Blue
+                dateNorth: 'Dec 20 – Dec 23',
+                dateSouth: 'Jun 20 – Jun 23',
+                meaning: 'Marks the winter solstice and the shortest day of the year. It celebrates the rebirth of the Sun God, the gradual return of daylight, hope, inner reflection, and honoring the quiet stillness before spring.',
+                popular: [
+                    'Decorating an evergreen Yule tree',
+                    'Lighting a traditional wooden Yule log',
+                    'Staying awake until dawn to greet the sun',
+                    'Feasting with spiced wine and winter dishes'
+                ],
+                easy: [
+                    'Light a single gold or white candle with intention',
+                    'Drink warm spiced tea or cider in total darkness',
+                    'Sit near a window and watch the sunrise',
+                    'Set 3 quiet intentions for the coming year'
+                ],
+                colors: ['Red', 'Green', 'Gold', 'White'],
+                herbs: 'Pine, Cedar, Mistletoe, Cinnamon, Holly',
+                symbols: 'Clear Quartz, Bloodstone, Evergreen Boughs, Yule Log'
+            },
+            {
+                id: 'imbolc',
+                name: 'Imbolc',
+                phonetic: 'im-BULK',
+                category: 'cross-quarter',
+                categoryLabel: 'Cross-Quarter (Greater) Sabbat',
+                season: 'Early Spring Fire Festival',
+                symbol: '🕯️',
+                angles: { start: 22.5, end: 67.5 },
+                color: '#10b981', // Emerald Spring
+                dateNorth: 'Feb 1 – Feb 2',
+                dateSouth: 'Aug 1 – Aug 2',
+                meaning: 'Honors the Goddess Brigid and the very first sparks of spring life beneath the frozen ground. A festival of hearth, home, purification, candle lighting, and dedication.',
+                popular: [
+                    'Candlemas rituals (lighting every candle in the house)',
+                    'Weaving Brigid\'s Crosses out of straw or rushes',
+                    'Spring cleaning and cleansing home energies',
+                    'Blessing seeds for the upcoming garden season'
+                ],
+                easy: [
+                    'Wash your face with cool, clean water for renewal',
+                    'Light a white candle while sweeping your entryway',
+                    'Drink a warm glass of milk, oat milk, or herbal tea',
+                    'Tidy up one small desk or nightstand space'
+                ],
+                colors: ['White', 'Silver', 'Pale Yellow', 'Pink'],
+                herbs: 'Snowdrop, Rosemary, Angelica, Chamomile',
+                symbols: 'Amethyst, Garnet, Brigid\'s Cross, Candles'
+            },
+            {
+                id: 'ostara',
+                name: 'Ostara',
+                phonetic: 'oh-STAR-ah',
+                category: 'solar',
+                categoryLabel: 'Solar (Lesser) Sabbat',
+                season: 'Vernal (Spring) Equinox',
+                symbol: '🌱',
+                angles: { start: 67.5, end: 112.5 },
+                color: '#f59e0b', // Dawn Amber
+                dateNorth: 'Mar 20 – Mar 23',
+                dateSouth: 'Sep 20 – Sep 23',
+                meaning: 'The spring equinox where night and day are in perfect balance. It celebrates awakening life, fertility, renewal, new beginnings, planting seeds, and blooming vitality.',
+                popular: [
+                    'Dyeing eggs with natural botanical dyes',
+                    'Planting seeds or tending to spring garden beds',
+                    'Taking nature walks to spot early green sprouts',
+                    'Setting up a floral spring altar'
+                ],
+                easy: [
+                    'Buy or pick a single fresh flower for your table',
+                    'Eat a boiled or scrambled egg mindfully for breakfast',
+                    'Open windows for 10 minutes to clear stagnant winter air',
+                    'Take 5 deep breaths outdoors'
+                ],
+                colors: ['Pastel Green', 'Soft Yellow', 'Pink', 'Sky Blue'],
+                herbs: 'Daffodil, Tulips, Clover, Lavender',
+                symbols: 'Aquamarine, Moonstone, Eggs, Rabbits, Seeds'
+            },
+            {
+                id: 'beltane',
+                name: 'Beltane',
+                phonetic: 'BELL-tay-nuh',
+                category: 'cross-quarter',
+                categoryLabel: 'Cross-Quarter (Greater) Sabbat',
+                season: 'Peak Spring / Early Summer',
+                symbol: '🌸',
+                angles: { start: 112.5, end: 157.5 },
+                color: '#ec4899', // Floral Pink
+                dateNorth: 'Apr 30 – May 1',
+                dateSouth: 'Oct 31 – Nov 1',
+                meaning: 'A potent fire festival celebrating fertility, passion, vibrant life force, union, and full growth. Marks the thinning of the veil and the height of spring bloom.',
+                popular: [
+                    'Dancing around a colorful Maypole',
+                    'Weaving and wearing fresh flower crowns',
+                    'Leaping over a small bonfire or hearth flame',
+                    'Leaving secret May baskets on neighbors\' doors'
+                ],
+                easy: [
+                    'Wear vibrant colors (red, green, or bright pink)',
+                    'Leave a small dish of honey or milk outside for nature spirits',
+                    'Eat fresh berries or fruit',
+                    'Light a green or pink candle'
+                ],
+                colors: ['Red', 'White', 'Bright Green', 'Pink'],
+                herbs: 'Hawthorn, Rose, Lilac, Mint',
+                symbols: 'Rose Quartz, Carnelian, Maypole, Flower Crowns'
+            },
+            {
+                id: 'litha',
+                name: 'Litha',
+                phonetic: 'LEE-thah',
+                category: 'solar',
+                categoryLabel: 'Solar (Lesser) Sabbat',
+                season: 'Summer Solstice',
+                symbol: '☀️',
+                angles: { start: 157.5, end: 202.5 },
+                color: '#eab308', // High Sun Yellow
+                dateNorth: 'Jun 20 – Jun 23',
+                dateSouth: 'Dec 20 – Dec 23',
+                meaning: 'The summer solstice and longest day of the year. Celebrates peak solar energy, abundance, triumph of light, radiance, passion, and the full ripening of nature.',
+                popular: [
+                    'Hosting midsummer bonfires and outdoor rituals',
+                    'Gathering peak-potency medicinal wild herbs',
+                    'Staying outside all day enjoying the sunshine',
+                    'Making sun wheels or floral wreaths'
+                ],
+                easy: [
+                    'Charge a glass of water in midday sunlight to drink',
+                    'Sit outdoors or by a sunlit window for 5 minutes',
+                    'Eat fresh citrus fruits or honey',
+                    'Light a bright yellow or gold candle'
+                ],
+                colors: ['Gold', 'Yellow', 'Orange', 'Bright Blue'],
+                herbs: 'St. John\'s Wort, Sunflower, Thyme, Verbena',
+                symbols: 'Sunstone, Citrine, Sun Wheels, Honey'
+            },
+            {
+                id: 'lughnasadh',
+                name: 'Lughnasadh',
+                phonetic: 'LOO-nah-sah / LAH-mas',
+                category: 'cross-quarter',
+                categoryLabel: 'Cross-Quarter (Greater) Sabbat',
+                season: 'First Harvest / Lammas',
+                symbol: '🌾',
+                angles: { start: 202.5, end: 247.5 },
+                color: '#d97706', // Harvest Amber
+                dateNorth: 'Aug 1 – Aug 2',
+                dateSouth: 'Feb 1 – Feb 2',
+                meaning: 'The first of three autumn harvest festivals. Celebrates the grain harvest, honoring sacrifice, gratitude for the fruits of hard labor, and acknowledging the early shift toward autumn.',
+                popular: [
+                    'Baking fresh bread or loaves from scratch',
+                    'Crafting corn husk dolls or wheat braids',
+                    'Sharing a community harvest potluck meal',
+                    'Giving first-fruits offerings to nature'
+                ],
+                easy: [
+                    'Eat a slice of warm store-bought bread with butter or honey',
+                    'Write down one accomplishment from this year you are proud of',
+                    'Enjoy corn, grains, or beer mindfully',
+                    'Light an orange candle'
+                ],
+                colors: ['Yellow-Gold', 'Bronze', 'Orange', 'Wheat Brown'],
+                herbs: 'Wheat, Barley, Sunflower, Meadowsweet',
+                symbols: 'Tiger\'s Eye, Aventurine, Bread, Corn Dolls'
+            },
+            {
+                id: 'mabon',
+                name: 'Mabon',
+                phonetic: 'MAY-bon',
+                category: 'solar',
+                categoryLabel: 'Solar (Lesser) Sabbat',
+                season: 'Autumnal Equinox',
+                symbol: '🍎',
+                angles: { start: 247.5, end: 292.5 },
+                color: '#ea580c', // Autumn Rust
+                dateNorth: 'Sep 20 – Sep 23',
+                dateSouth: 'Mar 20 – Mar 23',
+                meaning: 'The autumn equinox where day and night are once again in equal balance. Celebrates the second harvest, giving thanks, resting after hard work, and preparing mentally for winter.',
+                popular: [
+                    'Cooking lavish autumn feasts with apples & squash',
+                    'Collecting colorful fallen leaves, pinecones, & acorns',
+                    'Making fresh apple cider or fruit pies',
+                    'Setting up an autumn gratitude altar'
+                ],
+                easy: [
+                    'Slice an apple horizontally to reveal its natural 5-point star',
+                    'Write down 3 specific things you are thankful for',
+                    'Drink warm apple cider or spiced tea',
+                    'Hold a fallen acorn or colorful leaf'
+                ],
+                colors: ['Deep Red', 'Orange', 'Brown', 'Gold'],
+                herbs: 'Sage, Rosemary, Pine, Oak Leaves, Apple',
+                symbols: 'Amber, Yellow Jasper, Horn of Plenty (Cornucopia), Apples'
+            },
+            {
+                id: 'samhain',
+                name: 'Samhain',
+                phonetic: 'SOW-in',
+                category: 'cross-quarter',
+                categoryLabel: 'Cross-Quarter (Greater) Sabbat',
+                season: 'Final Harvest / Pagan New Year',
+                symbol: '🎃',
+                angles: { start: 292.5, end: 337.5 },
+                color: '#8b5cf6', // Mystical Purple
+                dateNorth: 'Oct 31 – Nov 1',
+                dateSouth: 'Apr 30 – May 1',
+                meaning: 'The final harvest and the Pagan New Year. The veil between worlds is thinnest. A solemn, joyful time to honor ancestors, reflect on cycles of life and death, and embrace transformation.',
+                popular: [
+                    'Holding a "Dumb Supper" (silent memorial dinner)',
+                    'Setting up an ancestor altar with old photographs',
+                    'Divination rituals (tarot, scrying, runecasting)',
+                    'Carving jack-o\'-lanterns and lighting bonfires'
+                ],
+                easy: [
+                    'Light a candle in the window for passed loved ones',
+                    'Set out an extra plate or glass of wine in quiet memory',
+                    'Pull 1 single tarot card for guidance in the new cycle',
+                    'Eat root vegetables, pomegranate, or pumpkin seeds'
+                ],
+                colors: ['Black', 'Orange', 'Deep Purple', 'Silver'],
+                herbs: 'Mugwort, Allspice, Rosemary, Oak Bark',
+                symbols: 'Obsidian, Smoky Quartz, Jack-o\'-lanterns, Ancestor Photos'
+            }
+        ];
+
+        // Global State
+        let selectedSabbatId = 'samhain';
+        let currentFilter = 'all';
+        let currentHemisphere = 'northern';
+        let searchQuery = '';
+
+        // Initialize application on page load
+        window.onload = function() {
+            renderWheel();
+            renderQuickPills();
+            updateDetailCard();
+        };
+
+        function renderWheel() {
+            const svg = document.getElementById('wheel-svg');
+            svg.innerHTML = ''; // Clear existing SVG contents
+
+            const cx = 200;
+            const cy = 200;
+            const radius = 180;
+            const innerRadius = 70;
+
+            // Draw outer circle track
+            const outerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            outerCircle.setAttribute('cx', cx);
+            outerCircle.setAttribute('cy', cy);
+            outerCircle.setAttribute('r', radius + 4);
+            outerCircle.setAttribute('fill', 'none');
+            outerCircle.setAttribute('stroke', '#2c394e');
+            outerCircle.setAttribute('stroke-width', '2');
+            svg.appendChild(outerCircle);
+
+            // Render each Sabbat arc sector
+            sabbats.forEach(sabbat => {
+                const isActive = sabbat.id === selectedSabbatId;
+                const matchesFilter = (currentFilter === 'all') || (sabbat.category === currentFilter);
+                const matchesSearch = searchQuery === '' || sabbat.name.toLowerCase().includes(searchQuery) || sabbat.season.toLowerCase().includes(searchQuery);
+
+                const startAngle = sabbat.angles.start;
+                const endAngle = sabbat.angles.end;
+
+                const pathData = describeArc(cx, cy, innerRadius, radius, startAngle, endAngle);
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', pathData);
+                path.setAttribute('fill', sabbat.color);
+                path.setAttribute('fill-opacity', isActive ? '0.85' : '0.4');
+                path.setAttribute('stroke', isActive ? '#f6d365' : '#1e2838');
+                path.setAttribute('stroke-width', isActive ? '3' : '1.5');
+                
+                let classes = 'wheel-sector';
+                if (isActive) classes += ' active';
+                if (!matchesFilter || !matchesSearch) classes += ' dimmed';
+                path.setAttribute('class', classes);
+
+                path.onclick = () => selectSabbat(sabbat.id);
+
+                // Tooltip title
+                const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+                title.textContent = `${sabbat.name} (${sabbat.season})`;
+                path.appendChild(title);
+
+                svg.appendChild(path);
+
+                // Add text label along radius
+                const midAngle = (startAngle + (endAngle < startAngle ? endAngle + 360 : endAngle)) / 2;
+                const labelRadius = (innerRadius + radius) / 2;
+                const labelPos = polarToCartesian(cx, cy, labelRadius, midAngle);
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', labelPos.x);
+                text.setAttribute('y', labelPos.y);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('dominant-baseline', 'central');
+                text.setAttribute('fill', isActive ? '#ffffff' : '#e2e8f0');
+                text.setAttribute('font-size', '11');
+                text.setAttribute('font-weight', isActive ? 'bold' : '600');
+                text.setAttribute('class', 'pointer-events-none heading-serif');
+                text.textContent = `${sabbat.symbol} ${sabbat.name}`;
+                
+                svg.appendChild(text);
+            });
+        }
+
+        // SVG Helper to calculate Cartesian points from polar angles
+        function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+            const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+            return {
+                x: centerX + (radius * Math.cos(angleInRadians)),
+                y: centerY + (radius * Math.sin(angleInRadians))
+            };
+        }
+
+        // SVG Arc Generator helper
+        function describeArc(x, y, innerR, outerR, startAngle, endAngle) {
+            let actualEndAngle = endAngle;
+            if (endAngle < startAngle) {
+                actualEndAngle += 360;
+            }
+
+            const startOuter = polarToCartesian(x, y, outerR, startAngle);
+            const endOuter = polarToCartesian(x, y, outerR, actualEndAngle);
+            const startInner = polarToCartesian(x, y, innerR, actualEndAngle);
+            const endInner = polarToCartesian(x, y, innerR, startAngle);
+
+            const largeArcFlag = actualEndAngle - startAngle <= 180 ? "0" : "1";
+
+            return [
+                "M", startOuter.x, startOuter.y,
+                "A", outerR, outerR, 0, largeArcFlag, 1, endOuter.x, endOuter.y,
+                "L", startInner.x, startInner.y,
+                "A", innerR, innerR, 0, largeArcFlag, 0, endInner.x, endInner.y,
+                "Z"
+            ].join(" ");
+        }
+
+        function updateDetailCard() {
+            const sabbat = sabbats.find(s => s.id === selectedSabbatId);
+            if (!sabbat) return;
+
+            // Center Knob updates
+            document.getElementById('center-symbol').textContent = sabbat.symbol;
+            document.getElementById('center-title').textContent = sabbat.name;
+            document.getElementById('center-date').textContent = currentHemisphere === 'northern' ? sabbat.dateNorth : sabbat.dateSouth;
+
+            // Header Elements
+            document.getElementById('card-badge').textContent = sabbat.categoryLabel;
+            document.getElementById('card-badge').className = `px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                sabbat.category === 'solar' ? 'bg-amber-400/10 text-amber-300 border border-amber-400/20' : 'bg-emerald-400/10 text-emerald-300 border border-emerald-400/20'
+            }`;
+            document.getElementById('card-season').textContent = sabbat.season;
+            document.getElementById('card-name').innerHTML = `${sabbat.symbol} ${sabbat.name}`;
+            document.getElementById('card-phonetic').textContent = `/${sabbat.phonetic}/`;
+            document.getElementById('card-date').textContent = currentHemisphere === 'northern' ? sabbat.dateNorth : sabbat.dateSouth;
+
+            // Meaning
+            document.getElementById('card-meaning').textContent = sabbat.meaning;
+
+            // Popular List
+            const popularUl = document.getElementById('card-popular');
+            popularUl.innerHTML = sabbat.popular.map(item => `<li>${item}</li>`).join('');
+
+            // Easy List
+            const easyUl = document.getElementById('card-easy');
+            easyUl.innerHTML = sabbat.easy.map(item => `<li>${item}</li>`).join('');
+
+            // Color Tags
+            const colorsDiv = document.getElementById('card-colors');
+            colorsDiv.innerHTML = sabbat.colors.map(c => `<span class="px-2 py-0.5 rounded-md bg-mystic-700 text-slate-200 text-[10px] font-medium border border-slate-600/40">${c}</span>`).join('');
+
+            // Herbs & Symbols
+            document.getElementById('card-herbs').textContent = sabbat.herbs;
+            document.getElementById('card-symbols').textContent = sabbat.symbols;
+
+            renderWheel();
+            updateQuickPillStyles();
+        }
+
+        // Render bottom Quick Pills
+        function renderQuickPills() {
+            const pillsContainer = document.getElementById('quick-pills');
+            pillsContainer.innerHTML = sabbats.map(s => `
+                <button onclick="selectSabbat('${s.id}')" id="pill-${s.id}" class="px-2.5 py-1 rounded-xl text-xs font-medium transition-all bg-mystic-800 text-slate-400 hover:text-white hover:bg-mystic-700 border border-slate-800">
+                    ${s.symbol} ${s.name}
+                </button>
+            `).join('');
+        }
+
+        function updateQuickPillStyles() {
+            sabbats.forEach(s => {
+                const pill = document.getElementById(`pill-${s.id}`);
+                if (pill) {
+                    if (s.id === selectedSabbatId) {
+                        pill.className = "px-2.5 py-1 rounded-xl text-xs font-semibold bg-gold-500/20 text-gold-400 border border-gold-500/40 shadow-sm";
+                    } else {
+                        pill.className = "px-2.5 py-1 rounded-xl text-xs font-medium transition-all bg-mystic-800 text-slate-400 hover:text-white hover:bg-mystic-700 border border-slate-800";
+                    }
+                }
+            });
+        }
+
+        // User Selection handlers
+        function selectSabbat(id) {
+            selectedSabbatId = id;
+            updateDetailCard();
+        }
+
+        function setCategoryFilter(cat) {
+            currentFilter = cat;
+            
+            // Update button styles
+            const btnAll = document.getElementById('btn-filter-all');
+            const btnSolar = document.getElementById('btn-filter-solar');
+            const btnCross = document.getElementById('btn-filter-cross-quarter');
+
+            const inactiveStyle = "filter-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all bg-mystic-700 text-slate-300 hover:text-white hover:bg-mystic-600";
+            const activeStyle = "filter-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-gold-500 text-mystic-900 shadow-md";
+
+            btnAll.className = cat === 'all' ? activeStyle : inactiveStyle;
+            btnSolar.className = cat === 'solar' ? activeStyle : inactiveStyle;
+            btnCross.className = cat === 'cross-quarter' ? activeStyle : inactiveStyle;
+
+            renderWheel();
+        }
+
+        function setHemisphere(hemi) {
+            currentHemisphere = hemi;
+            const btnNorth = document.getElementById('btn-hemi-north');
+            const btnSouth = document.getElementById('btn-hemi-south');
+
+            if (hemi === 'northern') {
+                btnNorth.className = "px-2.5 py-1 rounded-lg text-xs font-medium bg-gold-500/20 text-gold-400 border border-gold-500/30";
+                btnSouth.className = "px-2.5 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200";
+            } else {
+                btnSouth.className = "px-2.5 py-1 rounded-lg text-xs font-medium bg-gold-500/20 text-gold-400 border border-gold-500/30";
+                btnNorth.className = "px-2.5 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200";
+            }
+
+            updateDetailCard();
+        }
+
+        function handleSearch(val) {
+            searchQuery = val.toLowerCase().trim();
+            renderWheel();
+        }
+
+        function speakPronunciation() {
+            const sabbat = sabbats.find(s => s.id === selectedSabbatId);
+            if (!sabbat) return;
+
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(sabbat.name);
+                utterance.rate = 0.85; // Slightly slower for clarity
+                utterance.pitch = 1.0;
+                
+                // Prefer English voice if available
+                const voices = window.speechSynthesis.getVoices();
+                const englishVoice = voices.find(v => v.lang.includes('en'));
+                if (englishVoice) utterance.voice = englishVoice;
+
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert(`Pronunciation guide: /${sabbat.phonetic}/`);
+            }
+        }
+    </script>
+</body>
+</html>
